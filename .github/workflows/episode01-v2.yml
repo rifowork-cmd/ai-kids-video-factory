@@ -1,0 +1,23 @@
+name: Episode 01 V2 preview and QC
+on:
+  workflow_dispatch:
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install renderer dependencies
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-noto-cjk
+      - name: Check source footage exists
+        run: |
+          test -f assets/episode01/source.mp4 || { echo "Missing assets/episode01/source.mp4. Upload licensed source footage before running."; exit 1; }
+      - name: Render preview and mechanical QC
+        run: python3 tools/episode01_v2.py --source assets/episode01/source.mp4 --output output/episode01_v2_preview.mp4
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: episode01-v2-preview-qc
+          path: |
+            output/episode01_v2_preview.mp4
+            output/qc_report.json
+          if-no-files-found: warn
