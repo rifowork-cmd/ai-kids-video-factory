@@ -15,11 +15,11 @@ jobs:
       - name: Install Blender and offline voice tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y blender ffmpeg espeak-ng
+          sudo apt-get install -y blender ffmpeg espeak-ng libegl1 libgl1 libopengl0 libgles2 libx11-6 libxext6 libxrender1 libxi6 libxfixes3 libxxf86vm1 libsm6 libice6 libxkbcommon0
       - name: Render silent 3D master
         run: |
           mkdir -p output
-          blender -b -t 2 --python-exit-code 1 --python src/blender_scene.py -- --output output/3d-master.mp4 2>&1 | tee output/blender.log
+          LIBGL_ALWAYS_SOFTWARE=1 blender -b -t 2 --python-exit-code 1 --python src/blender_scene.py -- --output output/3d-master.mp4 2>&1 | tee output/blender.log
           test "$(find output/frames -name 'frame_*.png' | wc -l)" -eq 180
           ffmpeg -hide_banner -loglevel error -y -framerate 12 -start_number 1 -i output/frames/frame_%04d.png -c:v libx264 -pix_fmt yuv420p -movflags +faststart output/3d-master.mp4
           test -s output/3d-master.mp4
