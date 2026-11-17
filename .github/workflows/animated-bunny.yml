@@ -1,0 +1,28 @@
+name: Render animated bunny lesson
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install video dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-noto-cjk
+          python -m pip install 'Pillow==11.3.0'
+      - name: Render animated Japanese and English MP4
+        run: |
+          python src/animated_bunny.py --language ja --output output/animated-bunny-ja.mp4
+          python src/animated_bunny.py --language en --output output/animated-bunny-en.mp4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: animated-bunny-color-videos
+          path: output/*.mp4
+          retention-days: 7
