@@ -20,6 +20,8 @@ jobs:
         run: |
           mkdir -p output
           blender -b -t 2 --python-exit-code 1 --python src/blender_scene.py -- --output output/3d-master.mp4 2>&1 | tee output/blender.log
+          test "$(find output/frames -name 'frame_*.png' | wc -l)" -eq 180
+          ffmpeg -hide_banner -loglevel error -y -framerate 12 -start_number 1 -i output/frames/frame_%04d.png -c:v libx264 -pix_fmt yuv420p -movflags +faststart output/3d-master.mp4
           test -s output/3d-master.mp4
           ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 output/3d-master.mp4
       - name: Generate offline bilingual voices
