@@ -1,6 +1,9 @@
 name: 3D bunny and offline bilingual voice prototypes
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/3d-offline-voice.yml'
 permissions:
   contents: read
 jobs:
@@ -18,8 +21,10 @@ jobs:
           sudo apt-get install -y blender ffmpeg espeak-ng libegl1 libgl1 libopengl0 libgles2 libx11-6 libxext6 libxrender1 libxi6 libxfixes3 libxxf86vm1 libsm6 libice6 libxkbcommon0
       - name: Render silent 3D master
         run: |
+          set -euo pipefail
           mkdir -p output
           LIBGL_ALWAYS_SOFTWARE=1 blender -b -t 2 --python-exit-code 1 --python src/blender_scene.py -- --output output/3d-master.mp4 2>&1 | tee output/blender.log
+          echo "Rendered frames: $(find output/frames -name 'frame_*.png' | wc -l)"
           test "$(find output/frames -name 'frame_*.png' | wc -l)" -eq 180
           ffmpeg -hide_banner -loglevel error -y -framerate 12 -start_number 1 -i output/frames/frame_%04d.png -c:v libx264 -pix_fmt yuv420p -movflags +faststart output/3d-master.mp4
           test -s output/3d-master.mp4
@@ -36,5 +41,8 @@ jobs:
         if: always()
         with:
           name: bunny-3d-offline-voice-prototypes
-          path: output/
+          path: |
+            output/*.mp4
+            output/*.wav
+            output/*.log
           retention-days: 7
