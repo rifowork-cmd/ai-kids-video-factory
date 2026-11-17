@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/3d-offline-voice.yml'
+      - 'src/blender_scene.py'
 permissions:
   contents: read
 jobs:
