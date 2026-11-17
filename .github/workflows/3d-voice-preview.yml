@@ -1,0 +1,35 @@
+name: 3D bunny and bilingual voice prototypes
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  prototype:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Blender and audio tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender ffmpeg
+          python -m pip install 'edge-tts==7.2.7'
+      - name: Render silent 3D master
+        run: blender -b -t 2 --python src/blender_scene.py -- --output output/3d-master.mp4
+      - name: Generate bilingual voices
+        run: |
+          python src/narrate.py --language ja --output output/ja.mp3
+          python src/narrate.py --language en --output output/en.mp3
+      - name: Merge voice and 3D video
+        run: |
+          ffmpeg -hide_banner -loglevel error -y -i output/3d-master.mp4 -i output/ja.mp3 -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -af apad -t 15 output/bunny-3d-ja.mp4
+          ffmpeg -hide_banner -loglevel error -y -i output/3d-master.mp4 -i output/en.mp3 -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -af apad -t 15 output/bunny-3d-en.mp4
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bunny-3d-voice-prototypes
+          path: output/
+          retention-days: 7
