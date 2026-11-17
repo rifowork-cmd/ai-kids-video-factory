@@ -86,6 +86,7 @@ scene.render.fps = 12
 scene.frame_start = 1
 scene.frame_end = 180
 scene.render.image_settings.color_mode = "RGB"
+scene.render.image_settings.file_format = "FFMPEG"
 scene.render.ffmpeg.format = "MPEG4"
 scene.render.ffmpeg.codec = "H264"
 scene.render.filepath = str(Path(output).resolve())
@@ -126,5 +127,7 @@ light.data.size=6
 bpy.ops.object.light_add(type="AREA",location=(4,2,5))
 bpy.context.object.data.energy=650
 bpy.context.object.data.size=5
-scene.render.image_settings.file_format="FFMPEG"
 bpy.ops.render.render(animation=True)
+rendered = Path(output).resolve()
+if not rendered.is_file() or rendered.stat().st_size < 1024:
+    raise RuntimeError(f"3D render output missing or empty: {rendered}")
