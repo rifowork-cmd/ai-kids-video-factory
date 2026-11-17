@@ -13,7 +13,7 @@ def main():
  if not src.is_file(): sys.exit("Source video not found: "+str(src))
  if not pathlib.Path(a.font).exists(): sys.exit("Japanese font not found: "+a.font)
  duration=float(json.loads(subprocess.check_output(["ffprobe","-v","error","-show_entries","format=duration","-of","json",str(src)]))["format"]["duration"])
- if duration<115:sys.exit("Source must be at least 115 seconds")
+ if duration<114:sys.exit("Source must be at least 114 seconds")
  filters=[];labels=[]
  for i,(start,end,title) in enumerate(SCENES):
   # Reframe modestly to change the visual rhythm without inventing footage.
