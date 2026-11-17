@@ -1,0 +1,28 @@
+name: Prototype video editor
+on:
+  workflow_dispatch:
+    inputs:
+      seconds:
+        description: "Output length (1-120 seconds)"
+        required: true
+        default: "30"
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for source asset
+        run: |
+          if [ ! -f assets/source.mp4 ]; then
+            echo "::error::Upload a video to assets/source.mp4 before running."
+            exit 1
+          fi
+      - name: Render prototype
+        run: python3 tools/prototype_editor.py --input assets/source.mp4 --output output/prototype.mp4 --seconds "${{ inputs.seconds }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prototype-video
+          path: output/prototype.mp4
+          retention-days: 7
