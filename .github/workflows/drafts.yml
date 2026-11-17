@@ -1,0 +1,28 @@
+name: Generate bilingual draft storyboards
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1'
+permissions:
+  contents: read
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test generator
+        run: python -m unittest discover -s tests
+      - name: Generate Japanese and English drafts
+        run: |
+          python src/generate.py --topic colors --language ja --output output/colors-ja.json
+          python src/generate.py --topic colors --language en --output output/colors-en.json
+          python src/generate.py --topic numbers --language ja --output output/numbers-ja.json
+          python src/generate.py --topic numbers --language en --output output/numbers-en.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kids-video-draft-storyboards
+          path: output/*.json
+          retention-days: 14
