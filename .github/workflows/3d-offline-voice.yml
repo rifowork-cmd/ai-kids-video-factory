@@ -17,7 +17,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y blender ffmpeg espeak-ng
       - name: Render silent 3D master
-        run: blender -b -t 2 --python src/blender_scene.py -- --output output/3d-master.mp4
+        run: |
+          mkdir -p output
+          blender -b -t 2 --python-exit-code 1 --python src/blender_scene.py -- --output output/3d-master.mp4 2>&1 | tee output/blender.log
+          test -s output/3d-master.mp4
+          ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 output/3d-master.mp4
       - name: Generate offline bilingual voices
         run: |
           python src/narrate_offline.py --language ja --output output/ja.wav
