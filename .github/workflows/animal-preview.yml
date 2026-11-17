@@ -1,0 +1,28 @@
+name: Render illustrated bunny color videos
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install rendering tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-noto-cjk
+          python -m pip install 'Pillow==11.3.0'
+      - name: Render Japanese and English previews
+        run: |
+          python src/animal_video.py --language ja --output output/bunny-colors-ja.mp4
+          python src/animal_video.py --language en --output output/bunny-colors-en.mp4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: illustrated-bunny-color-videos
+          path: output/*.mp4
+          retention-days: 7
