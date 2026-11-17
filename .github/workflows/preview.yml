@@ -1,0 +1,31 @@
+name: Build silent video previews
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install video encoder
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      - name: Generate draft scripts
+        run: |
+          python src/generate.py --topic colors --language ja --output output/colors-ja.json
+          python src/generate.py --topic colors --language en --output output/colors-en.json
+      - name: Render silent MP4 prototypes
+        run: |
+          python src/render_preview.py --storyboard output/colors-ja.json --output output/colors-ja-preview.mp4
+          python src/render_preview.py --storyboard output/colors-en.json --output output/colors-en-preview.mp4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: silent-mp4-previews
+          path: output/*.mp4
+          retention-days: 7
