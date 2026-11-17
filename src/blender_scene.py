@@ -78,7 +78,11 @@ for i, mat in enumerate(colors):
     balls[-1].hide_render = True
 
 scene = bpy.context.scene
-scene.render.engine = "BLENDER_EEVEE"
+scene.render.engine = "CYCLES"
+scene.cycles.device = "CPU"
+scene.cycles.samples = 8
+scene.render.threads_mode = "FIXED"
+scene.render.threads = 2
 scene.render.resolution_x = 640
 scene.render.resolution_y = 360
 scene.render.resolution_percentage = 100
